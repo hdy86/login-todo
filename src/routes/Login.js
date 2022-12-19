@@ -18,6 +18,10 @@ const Container = styled.div`
   background: #fff;
   box-sizing: border-box;
   box-shadow: 0 0 40px rgba(252, 121, 121, 0.8);
+
+  @media all and (max-width: 767px) {
+    padding: 40px 20px;
+  }
 `;
 
 const Title = styled.h1`
@@ -75,7 +79,7 @@ function Login() {
   return (
     <Wrapper>
       <Container>
-        <Title>Login</Title>
+        <Title>LOGIN</Title>
         <Form>
           <Input type="text" placeholder="E-mail" />
           <Input type="password" placeholder="Password" />

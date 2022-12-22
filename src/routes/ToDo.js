@@ -59,6 +59,11 @@ const Li = styled.li`
   margin-top: 20px;
   padding: 0 20px;
   box-sizing: border-box;
+
+  input {
+    padding: 10px;
+    border-radius: 5px;
+  }
 `;
 const CheckBox = styled.div`
   display: flex;
@@ -81,6 +86,7 @@ const Text = styled.p`
   flex: 1;
   font-size: 20px;
   text-decoration: ${(props) => props.checked && "line-through"};
+  padding: 11px 0;
 `;
 const Btns = styled.button`
   padding: 0;
@@ -93,12 +99,19 @@ const Btns = styled.button`
 function ToDo() {
   const [toDos, setToDos] = useState([]);
   const [toDoValue, setToDoValue] = useState("");
+  const [editValue, setEditValue] = useState("");
+  const [editing, setEditing] = useState(false);
 
   const addToDo = (e) => {
     e.preventDefault();
 
     if (toDoValue.length !== 0) {
-      const newToDo = { id: Date.now(), text: toDoValue, checked: false };
+      const newToDo = {
+        id: Date.now(),
+        text: toDoValue,
+        checked: false,
+        editable: false,
+      };
       setToDos((state) => [...state, newToDo]);
       setToDoValue("");
     }
@@ -108,12 +121,31 @@ function ToDo() {
       return state.filter((item) => item.id !== id);
     });
   };
+  const editToDo = (type, id, text) => {
+    if (type === 0) {
+      setEditValue(text);
+      setEditing(true);
+      setToDos((state) => {
+        return state.map((item) =>
+          item.id === id ? { ...item, editable: !item.editable } : item
+        );
+      });
+    } else if (type === 1) {
+      setEditing(false);
+      setToDos((state) => {
+        return state.map((item) =>
+          item.id === id
+            ? { ...item, text: editValue, editable: !item.editable }
+            : item
+        );
+      });
+    }
+  };
   const checkToDo = (id) => {
     setToDos((state) => {
-      const newToDo = state.map((item) =>
+      return state.map((item) =>
         item.id === id ? { ...item, checked: !item.checked } : item
       );
-      return newToDo;
     });
   };
 
@@ -132,12 +164,29 @@ function ToDo() {
           <PlusBtn>+</PlusBtn>
         </Form>
         <Ul>
-          {toDos.map(({ id, text, checked }) => (
+          {toDos.map(({ id, text, checked, editable }) => (
             <Li key={id}>
               <CheckBox onClick={() => checkToDo(id)}>
                 {checked && <CheckTrue />}
               </CheckBox>
-              <Text checked={checked}>{text}</Text>
+              {!editable ? (
+                <>
+                  <Text checked={checked}>{text}</Text>
+                  <Btns onClick={() => !editing && editToDo(0, id, text)}>
+                    ✏️
+                  </Btns>
+                </>
+              ) : (
+                <>
+                  <Input
+                    type="text"
+                    value={editValue}
+                    onChange={(e) => setEditValue(e.target.value)}
+                    focusColor={theme.blue.darker}
+                  />
+                  <Btns onClick={() => editToDo(1, id, text)}>💾</Btns>
+                </>
+              )}
               <Btns onClick={() => deleteToDo(id)}>🗑️</Btns>
             </Li>
           ))}

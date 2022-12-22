@@ -7,7 +7,7 @@ export const theme = {
     veryDark: "#222222",
     opacity: "rgba(0, 0, 0, 0.8)",
   },
-  red: "#ff0000",
+  red: "#c20000",
   pink: {
     lighter: "#ffcccc",
     pink: "#ffb8b8",

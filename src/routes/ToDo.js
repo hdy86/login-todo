@@ -1,4 +1,7 @@
 import styled from "styled-components";
+import { useState } from "react";
+import { theme } from "../theme";
+import Input from "../components/TextInput";
 
 const Wrapper = styled.div`
   display: flex;
@@ -33,22 +36,6 @@ const Form = styled.form`
   gap: 10px;
   margin-top: 40px;
 `;
-const Input = styled.input`
-  flex: 1;
-  padding: 20px;
-  border: 1px solid ${(props) => props.theme.black.lighter};
-  border-radius: 15px;
-  font-size: 18px;
-  color: ${(props) => props.theme.black.veryDark};
-
-  &::placeholder {
-    color: ${(props) => props.theme.black.lighter};
-  }
-  &:focus {
-    border: 1px solid transparent;
-    outline: 2px solid ${(props) => props.theme.blue.darker};
-  }
-`;
 const PlusBtn = styled.button`
   padding: 20px 30px;
   border: none;
@@ -66,9 +53,27 @@ const Ul = styled.ul`
 const Li = styled.li`
   display: flex;
   align-items: center;
+  gap: 10px;
   margin-top: 20px;
   padding: 0 20px;
   box-sizing: border-box;
+`;
+const CheckBox = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  border: 2px solid ${(props) => props.theme.black.lighter};
+  border-radius: 4px;
+  cursor: pointer;
+`;
+const CheckTrue = styled.div`
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  background: ${(props) => props.theme.blue.darker};
 `;
 const Text = styled.p`
   flex: 1;
@@ -81,29 +86,35 @@ const DelBtn = styled.button`
   font-size: 24px;
   cursor: pointer;
 `;
+const todo = [
+  { id: 1, text: "이름", checked: false },
+  { id: 2, text: "이름", checked: false },
+  { id: 3, text: "이름", checked: false },
+];
 
 function ToDo() {
+  const [toDos, setToDos] = useState(todo);
+
   return (
     <Wrapper>
       <Container>
         <Title>ToDo List</Title>
         <Form>
-          <Input type="text" placeholder="Add Todo..." />
+          <Input
+            type="text"
+            placeholder="Add Todo..."
+            focusColor={theme.blue.darker}
+          />
           <PlusBtn>+</PlusBtn>
         </Form>
         <Ul>
-          <Li>
-            <Text>이름</Text>
-            <DelBtn>🗑️</DelBtn>
-          </Li>
-          <Li>
-            <Text>이름</Text>
-            <DelBtn>🗑️</DelBtn>
-          </Li>
-          <Li>
-            <Text>이름</Text>
-            <DelBtn>🗑️</DelBtn>
-          </Li>
+          {toDos.map(({ id, text, checked }) => (
+            <Li key={id}>
+              <CheckBox>{checked && <CheckTrue />}</CheckBox>
+              <Text>{text}</Text>
+              <DelBtn>🗑️</DelBtn>
+            </Li>
+          ))}
         </Ul>
       </Container>
     </Wrapper>

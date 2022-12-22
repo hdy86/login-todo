@@ -1,7 +1,7 @@
 import styled from "styled-components";
 
 const Input = styled.input`
-  flex: 1;
+  width: 100%;
   padding: 20px;
   border: 1px solid ${(props) => props.theme.black.lighter};
   border-radius: 15px;

@@ -23,11 +23,6 @@ const Modal = styled.div`
   background: ${(props) => props.theme.white};
   text-align: center;
   overflow: hidden;
-
-  button {
-    width: 100%;
-    margin-top: 60px;
-  }
 `;
 const Title = styled.h6`
   font-size: 28px;
@@ -37,16 +32,48 @@ const Desc = styled.p`
   font-size: 18px;
   margin-top: 20px;
 `;
+const BtnWrap = styled.div`
+  display: flex;
+  gap: 10px;
+  margin-top: 60px;
+
+  button {
+    flex: 1;
+  }
+  button:first-child {
+    background: ${(props) => props.theme.red};
+  }
+`;
 
 function ConfirmModal(props) {
-  const { onClick, title, desc, btnText } = props;
+  const {
+    title,
+    desc,
+    btnText,
+    onClick,
+    btnText2 = "",
+    onClick2 = () => {},
+  } = props;
 
   return (
     <ModalWrap>
       <Modal>
         <Title>{title}</Title>
         <Desc>{desc}</Desc>
-        <Btn onClick={onClick} text={btnText} btnColor={theme.black.veryDark} />
+        <BtnWrap>
+          {btnText2.length !== 0 && (
+            <Btn
+              onClick={onClick2}
+              text={btnText2}
+              btnColor={theme.black.veryDark}
+            />
+          )}
+          <Btn
+            onClick={onClick}
+            text={btnText}
+            btnColor={theme.black.veryDark}
+          />
+        </BtnWrap>
       </Modal>
     </ModalWrap>
   );

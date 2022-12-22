@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { theme } from "../theme";
 import Input from "../components/TextInput";
 
@@ -14,11 +14,13 @@ const Wrapper = styled.div`
 const Container = styled.div`
   width: 90%;
   max-width: 600px;
+  max-height: 90vh;
   padding: 60px 40px;
   border-radius: 10px;
   background: ${(props) => props.theme.white};
   box-sizing: border-box;
   box-shadow: 0 0 40px ${(props) => props.theme.blue.opacity};
+  overflow-y: auto;
 
   @media all and (max-width: 767px) {
     padding: 40px 20px;
@@ -78,31 +80,53 @@ const CheckTrue = styled.div`
 const Text = styled.p`
   flex: 1;
   font-size: 20px;
+  text-decoration: ${(props) => props.checked && "line-through"};
 `;
-const DelBtn = styled.button`
+const Btns = styled.button`
   padding: 0;
   border: none;
   background: transparent;
   font-size: 24px;
   cursor: pointer;
 `;
-const todo = [
-  { id: 1, text: "이름", checked: false },
-  { id: 2, text: "이름", checked: false },
-  { id: 3, text: "이름", checked: false },
-];
 
 function ToDo() {
-  const [toDos, setToDos] = useState(todo);
+  const [toDos, setToDos] = useState([]);
+  const [toDoValue, setToDoValue] = useState("");
+
+  const addToDo = (e) => {
+    e.preventDefault();
+
+    if (toDoValue.length !== 0) {
+      const newToDo = { id: Date.now(), text: toDoValue, checked: false };
+      setToDos((state) => [...state, newToDo]);
+      setToDoValue("");
+    }
+  };
+  const deleteToDo = (id) => {
+    setToDos((state) => {
+      return state.filter((item) => item.id !== id);
+    });
+  };
+  const checkToDo = (id) => {
+    setToDos((state) => {
+      const newToDo = state.map((item) =>
+        item.id === id ? { ...item, checked: !item.checked } : item
+      );
+      return newToDo;
+    });
+  };
 
   return (
     <Wrapper>
       <Container>
         <Title>ToDo List</Title>
-        <Form>
+        <Form onSubmit={addToDo}>
           <Input
             type="text"
             placeholder="Add Todo..."
+            value={toDoValue}
+            onChange={(e) => setToDoValue(e.target.value)}
             focusColor={theme.blue.darker}
           />
           <PlusBtn>+</PlusBtn>
@@ -110,9 +134,11 @@ function ToDo() {
         <Ul>
           {toDos.map(({ id, text, checked }) => (
             <Li key={id}>
-              <CheckBox>{checked && <CheckTrue />}</CheckBox>
-              <Text>{text}</Text>
-              <DelBtn>🗑️</DelBtn>
+              <CheckBox onClick={() => checkToDo(id)}>
+                {checked && <CheckTrue />}
+              </CheckBox>
+              <Text checked={checked}>{text}</Text>
+              <Btns onClick={() => deleteToDo(id)}>🗑️</Btns>
             </Li>
           ))}
         </Ul>

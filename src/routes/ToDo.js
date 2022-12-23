@@ -2,6 +2,7 @@ import styled from "styled-components";
 import { useEffect, useState } from "react";
 import { theme } from "../theme";
 import Input from "../components/TextInput";
+import Modal from "../components/ConfirmModal";
 
 const Wrapper = styled.div`
   display: flex;
@@ -38,8 +39,11 @@ const Form = styled.form`
   gap: 10px;
   margin-top: 40px;
 `;
+const InputWrap = styled.div`
+  flex: 1;
+`;
 const PlusBtn = styled.button`
-  padding: 20px 30px;
+  padding: 20px;
   border: none;
   border-radius: 15px;
   background: ${(props) => props.theme.blue.darker};
@@ -59,6 +63,11 @@ const Li = styled.li`
   margin-top: 20px;
   padding: 0 20px;
   box-sizing: border-box;
+
+  @media all and (max-width: 767px) {
+    gap: 5px;
+    padding: 0 10px;
+  }
 
   input {
     padding: 10px;
@@ -96,11 +105,25 @@ const Btns = styled.button`
   cursor: pointer;
 `;
 
+const TODOS = "toDos";
+
 function ToDo() {
   const [toDos, setToDos] = useState([]);
   const [toDoValue, setToDoValue] = useState("");
   const [editValue, setEditValue] = useState("");
   const [editing, setEditing] = useState(false);
+  const [modal, setModal] = useState(false);
+
+  useEffect(() => {
+    const savedToDos = localStorage.getItem(TODOS);
+
+    if (savedToDos !== null) {
+      setToDos(JSON.parse(savedToDos));
+    }
+  }, []);
+  useEffect(() => {
+    saveToDos();
+  }, [toDos]);
 
   const addToDo = (e) => {
     e.preventDefault();
@@ -122,15 +145,21 @@ function ToDo() {
     });
   };
   const editToDo = (type, id, text) => {
-    if (type === 0) {
-      setEditValue(text);
-      setEditing(true);
+    const editChange = () => {
       setToDos((state) => {
         return state.map((item) =>
           item.id === id ? { ...item, editable: !item.editable } : item
         );
       });
+    };
+
+    if (type === 0) {
+      // 수정
+      setEditValue(text);
+      setEditing(true);
+      editChange();
     } else if (type === 1) {
+      // 수정 완료
       setEditing(false);
       setToDos((state) => {
         return state.map((item) =>
@@ -139,6 +168,14 @@ function ToDo() {
             : item
         );
       });
+    } else if (type === 2) {
+      // 수정 취소
+      if (text === editValue) {
+        setEditing(false);
+        editChange();
+      } else {
+        setModal(true);
+      }
     }
   };
   const checkToDo = (id) => {
@@ -148,19 +185,24 @@ function ToDo() {
       );
     });
   };
+  const saveToDos = () => {
+    localStorage.setItem(TODOS, JSON.stringify(toDos));
+  };
 
   return (
     <Wrapper>
       <Container>
         <Title>ToDo List</Title>
         <Form onSubmit={addToDo}>
-          <Input
-            type="text"
-            placeholder="Add Todo..."
-            value={toDoValue}
-            onChange={(e) => setToDoValue(e.target.value)}
-            focusColor={theme.blue.darker}
-          />
+          <InputWrap>
+            <Input
+              type="text"
+              placeholder="Add Todo..."
+              value={toDoValue}
+              onChange={(e) => setToDoValue(e.target.value)}
+              focusColor={theme.blue.darker}
+            />
+          </InputWrap>
           <PlusBtn>+</PlusBtn>
         </Form>
         <Ul>
@@ -178,13 +220,16 @@ function ToDo() {
                 </>
               ) : (
                 <>
-                  <Input
-                    type="text"
-                    value={editValue}
-                    onChange={(e) => setEditValue(e.target.value)}
-                    focusColor={theme.blue.darker}
-                  />
+                  <InputWrap>
+                    <Input
+                      type="text"
+                      value={editValue}
+                      onChange={(e) => setEditValue(e.target.value)}
+                      focusColor={theme.blue.darker}
+                    />
+                  </InputWrap>
                   <Btns onClick={() => editToDo(1, id, text)}>💾</Btns>
+                  <Btns onClick={() => editToDo(2, id, text)}>❌</Btns>
                 </>
               )}
               <Btns onClick={() => deleteToDo(id)}>🗑️</Btns>
@@ -192,6 +237,26 @@ function ToDo() {
           ))}
         </Ul>
       </Container>
+      {modal && (
+        <Modal
+          title="Check"
+          desc={"You were Editing. Are you want to cancel?"}
+          btnText="Confirm"
+          onClick={() => {
+            setToDos((state) => {
+              return state.map((item) =>
+                item.editable === true
+                  ? { ...item, editable: !item.editable }
+                  : item
+              );
+            });
+            setEditing(false);
+            setModal(false);
+          }}
+          btnText2="Cancel"
+          onClick2={() => setModal(false)}
+        />
+      )}
     </Wrapper>
   );
 }
